@@ -1,0 +1,2 @@
+g++ Test.cpp -I .\libsodium-win32\include -L .\libsodium-win32\lib -lsodium -o Test
+./Test
