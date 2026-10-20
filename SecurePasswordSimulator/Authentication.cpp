@@ -7,6 +7,8 @@
 #include <sodium.h>
 #include "LoginException.cpp"
 #include "UserRecords.cpp"
+#include "LoginHistory.cpp"
+#include "SignOut.cpp"
 using namespace std;
 
 class Authentication {
@@ -16,9 +18,24 @@ private:
     const int maxAttempts = 3;
     const int lockoutTime = 60;
     UserRecords records;
+    LoginHistory* loginHistory;
+    SignOut* signOut;
 
 public:
+    Authentication() : loginHistory(nullptr), signOut(nullptr) {}
+
+    // Set external references so main can share these objects
+    void setLoginHistory(LoginHistory* lh) { loginHistory = lh; }
+    void setSignOut(SignOut* so) { signOut = so; }
+
     void authenticateUser() {
+        // Prevent login if a user is already signed in
+        if (signOut && signOut->isLoggedIn()) {
+            cout << "User " << signOut->getLoggedInUser()
+                 << " is already signed in. Please sign out first.\n";
+            return;
+        }
+
         string prn, password;
         cout << "\nSTUDENT LOGIN\nEnter PRN: ";
         cin >> prn;
@@ -52,8 +69,17 @@ public:
         if (crypto_pwhash_str_verify(storedHash.c_str(), password.c_str(), password.length()) == 0) {
             cout << "Login successful\n";
             failedAttempts[prn] = 0;
+
+            // Record successful login in history
+            if (loginHistory) loginHistory->recordAttempt(prn, true);
+
+            // Set the signed-in user
+            if (signOut) signOut->setLoggedInUser(prn);
             return;
         }
+
+        // Record failed login in history
+        if (loginHistory) loginHistory->recordAttempt(prn, false);
 
         ++failedAttempts[prn];
         cout << "Incorrect password\nFailed Attempts: "

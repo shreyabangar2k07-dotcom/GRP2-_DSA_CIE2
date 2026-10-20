@@ -4,7 +4,6 @@
 #include "Registration.cpp"
 #include "Authentication.cpp"
 #include "PasswordChange.cpp"
-#include "UserRecords.cpp"
 using namespace std;
 
 int main() {
@@ -17,6 +16,12 @@ int main() {
     Authentication authentication;
     PasswordChange passwordChange;
     UserRecords records;
+    LoginHistory loginHistory;
+    SignOut signOut;
+
+    // Wire shared objects into authentication
+    authentication.setLoginHistory(&loginHistory);
+    authentication.setSignOut(&signOut);
 
     int choice;
     do {
@@ -25,6 +30,8 @@ int main() {
         cout << "2. Display stored records\n";
         cout << "3. Login\n";
         cout << "4. Change password\n";
+        cout << "5. Sign out\n";
+        cout << "6. Login history\n";
         cout << "0. Exit\n";
         cout << "Enter choice: ";
 
@@ -40,6 +47,8 @@ int main() {
             case 2: records.displayRecords(); break;
             case 3: authentication.authenticateUser(); break;
             case 4: passwordChange.changePassword(); break;
+            case 5: signOut.signOutUser(); break;
+            case 6: loginHistory.displayHistory(); break;
             case 0: cout << "Exiting...\n"; break;
             default: cout << "Invalid choice\n";
         }
@@ -47,3 +56,4 @@ int main() {
 
     return 0;
 }
+
