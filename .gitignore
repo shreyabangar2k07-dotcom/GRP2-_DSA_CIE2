@@ -1,0 +1,6 @@
+build/
+User.txt
+User_temp.txt
+.vscode/
+*.o
+*.out
